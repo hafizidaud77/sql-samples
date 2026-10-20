@@ -46,7 +46,8 @@ jobs:
               "<!DOCTYPE html>",
               "<html",
               "<head>",
-              "<body>"
+              "<body>",
+              "<missing-test-element>"
           ]
 
           for item in required:
