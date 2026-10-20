@@ -1,0 +1,59 @@
+
+name: HTML CI Validation
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate-html:
+    name: Validate HTML
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check HTML file exists
+        shell: bash
+        run: |
+          test -f index.html
+
+      - name: Validate HTML structure
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+
+          html = Path("index.html").read_text(
+              encoding="utf-8"
+          )
+
+          class Validator(HTMLParser):
+              pass
+
+          validator = Validator()
+          validator.feed(html)
+          validator.close()
+
+          required = [
+              "<!DOCTYPE html>",
+              "<html",
+              "<head>",
+              "<body>"
+          ]
+
+          for item in required:
+              if item.lower() not in html.lower():
+                  raise SystemExit(
+                      f"Missing required element: {item}"
+                  )
+
+          print("Basic HTML validation passed")
+          PY
